@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title><%= title %></title>
+    <!-- <link rel='stylesheet' href='/stylesheets/style.css' /> -->
+</head>
+
+<body>
+    <h1><%= title %></h1>
+    <p>Welcome to ejs <%= message %></p>
+    <ul id='ul'>
+
+    </ul>
+    <label for="id">id:</label> <input id="id" />
+    <label for="title">title:</label> <input id="title" />
+
+    <button id="del">删除</button>
+    <button id="add">添加</button>
+    <button id="update">更新</button>
+    <!-- <script src="./jquery-3.4.1.min.js"></script> -->
+    <script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+    <script type="text/javascript">
+        let id = $('#id').val()
+        let title = $('#title').val()
+        let chooseid
+        $(document).ready(function () {
+            find()
+            function find() {
+                var list = ''
+                $("li").remove()
+                $.ajax({
+                    type: 'get',
+                    url: 'http://localhost:5000/find',
+                    data: {
+                        kind: 'all'
+                    },
+                    success: function (data) {
+                        $('#id').val('')
+                        $('#title').val('')
+                        list = data
+                        console.log(list);
+                        for (let i = 0; i < list.length; i++) {
+                            $('<li>' + list[i].title + list[i].id + `<input type="radio"  name="pathType" class="pathType" data-id=${list[i].id}  value=${list[i].id} />` + '</li>').appendTo($('ul'));
+
+                        }
+                        // $(``).appendTo($('li'))
+                        
+                        
+                    },
+                    error: function () {
+                        console.log('error');
+                    }
+                })
+            }
+            /* 删除 数据*/
+            $('#del').click(() => {
+                if (chooseid) {
+                    $.ajax({
+                        type: 'get',
+                        url: 'http://localhost:5000/del',
+                        data: {
+                            id: chooseid
+                        },
+                        success: function (data) {
+                            find()
+                            chooseid=''
+                        },
+                        error: function () {
+                            console.log('error');
+                        }
+                    })
+                } else {
+                    alert('请选择要删除的数据')
+                }
+            })
+            /* 添加 数据*/
+            
+                $('#add').click(() => {
+                    let id = $('#id').val()
+                    let title = $('#title').val()
+        //   if(id!=''&&title!=''){
+                    $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:5000/add',
+                        data: {
+                            id: id,
+                            title: title
+                        },
+                        success: function (data) {
+                            find()
+                        },
+                        error: function () {
+                            console.log('error');
+                        }
+                    })
+                // }
+            //     else{
+            //     alert('请填写内容')
+            // }
+            })
+
+            /* 删除 数据 */
+            $("#ul").on('click', '.pathType', function (e) {
+                console.log(e.target.getAttribute("data-id"))
+                chooseid = e.target.getAttribute("data-id")
+                // console.log(e.target.value)
+
+            })
+
+            /* 更新数据 */
+            $("#update").click(()=>{
+                let id = $('#id').val()
+        let title = $('#title').val()
+                $.ajax({
+                        type: 'post',
+                        url: 'http://localhost:5000/change',
+                        data: {
+                            id: id,
+                            title: title
+                        },
+                        success: function (data) {
+                            find()
+                        },
+                        error: function () {
+                            console.log('error');
+                        }
+                    })
+            })
+
+        })
+    </script>
+</body>
+
+</html>
